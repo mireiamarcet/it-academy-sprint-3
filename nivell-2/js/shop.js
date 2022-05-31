@@ -130,11 +130,6 @@ function printCart() {
     shoppingCart.innerHTML = "";
     totalPrice.innerHTML = "";
 
-    // generate the cart
-    generateCart();
-
-    // apply the promotions
-    applyPromotionsCart();
 
     // create a row for every product in cart and add it to the shopping cart
     for(let i = 0; i < cart.length; i++){
@@ -161,6 +156,8 @@ function printCart() {
     }
 
     // calculate the total price (with discounts)
+    total = 0;
+    
     for(let i = 0; i < cart.length; i++){
         total += cart[i].subtotalWithDiscount != undefined ? cart[i].subtotalWithDiscount : cart[i].subtotal;
     }
@@ -175,7 +172,28 @@ function printCart() {
 function addToCart(id) {
     // Refactor previous code in order to simplify it 
     // 1. Loop for to the array products to get the item to add to cart
+    let selectedProduct = products.find(p => p.id == id);
     // 2. Add found product to the cart array or update its quantity in case it has been added previously.
+    index = cart.findIndex(p => p.id == id);
+    
+    if(index == -1){
+        // if this product is not in the cart, add it
+        cart.push({...selectedProduct, quantity: 1, subtotal: selectedProduct.price});
+    } else {
+        // else, update its quantity & subtotal... 
+        cart[index].quantity++;
+        cart[index].subtotal += selectedProduct.price;
+        // ...and check if there are promotions to be applied
+        if(cart[index].offer != undefined && cart[index].quantity >= cart[index].offer.number){
+            cart[index].subtotalWithDiscount = cart[index].subtotal * (100 - cart[index].offer.percent) / 100;
+        }
+    }
+}
+
+function cleanTheCart() {
+    while(cart.length > 0){
+        cart.pop();
+    }
 }
 
 // Exercise 8
